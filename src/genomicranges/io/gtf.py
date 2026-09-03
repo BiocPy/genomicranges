@@ -1,6 +1,11 @@
-import logging
-from typing import Dict, List, Union
+from __future__ import annotations
 
+import logging
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    import pandas as pd
+    from ..GenomicRanges import GenomicRanges
 # Variation of https://github.com/epiviz/epivizfileserver/src/epivizfileserver/cli.py
 
 __author__ = "jkanche"
@@ -8,7 +13,7 @@ __copyright__ = "jkanche"
 __license__ = "MIT"
 
 
-def _parse_all_attribute(row: str) -> Dict:
+def _parse_all_attribute(row: dict[str, Any]) -> dict[str, Any]:
     """Extract all keys from the gtf/gff attribute string.
 
     Args:
@@ -32,9 +37,9 @@ def _parse_all_attribute(row: str) -> Dict:
 def parse_gtf(
     path: str,
     compressed: bool,
-    skiprows: Union[int, List[int]] = None,
+    skiprows: int | list[int] | None = None,
     comment: str = "#",
-):
+) -> pd.DataFrame:
     """Read a GTF file as :py:class:`~pandas.DataFrame`.
 
     Args:
@@ -59,43 +64,28 @@ def parse_gtf(
     from pandas import DataFrame, read_csv
 
     logging.info(f"Reading File - {path}")
+
+    kwargs = {
+        "sep": "\t",
+        "names": [
+            "seqnames",
+            "source",
+            "feature",
+            "starts",
+            "ends",
+            "score",
+            "strand",
+            "frame",
+            "group",
+        ],
+        "skiprows": skiprows,
+        "comment": comment,
+    }
+
     if compressed:
-        df = read_csv(
-            path,
-            sep="\t",
-            names=[
-                "seqnames",
-                "source",
-                "feature",
-                "starts",
-                "ends",
-                "score",
-                "strand",
-                "frame",
-                "group",
-            ],
-            compression="gzip",
-            skiprows=skiprows,
-            comment=comment,
-        )
-    else:
-        df = read_csv(
-            path,
-            sep="\t",
-            names=[
-                "seqnames",
-                "source",
-                "feature",
-                "starts",
-                "ends",
-                "score",
-                "strand",
-                "frame",
-                "group",
-            ],
-            skiprows=skiprows,
-            comment=comment,
-        )
+        kwargs["compression"] = "gzip"
+
+    df = read_csv(path, **kwargs)
 
     records = df.to_dict("records")
     rows = Parallel(n_jobs=-2)(delayed(_parse_all_attribute)(row) for row in records)
@@ -107,9 +97,9 @@ def parse_gtf(
 
 def read_gtf(
     file: str,
-    skiprows: Union[int, List[int]] = None,
+    skiprows: int | list[int] | None = None,
     comment: str = "#",
-) -> "GenomicRanges":
+) -> GenomicRanges:
     """Read a GTF file as :py:class:`~genomicranges.GenomicRanges.GenomicRanges`.
 
     Args:
