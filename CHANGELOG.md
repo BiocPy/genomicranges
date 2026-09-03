@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.9.0
+
+- Migrate package to hatch
+
 ## Version 0.8.0 - 0.8.5
 
 - Rename `GenomicRangesList` to `CompressedGenomicRangesList` and now extends compressed-lists.
