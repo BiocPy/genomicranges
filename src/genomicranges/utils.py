@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 from itertools import groupby
 from typing import TYPE_CHECKING, Any
-from collections.abc import Sequence
 
 if TYPE_CHECKING:
     from .GenomicRanges import GenomicRanges
@@ -106,16 +106,12 @@ def _sanitize_strand_search_ops(query_strand: str, subject_strand: str) -> int |
     elif query_strand == "-":
         if subject_strand == "+":
             out = None
-        elif subject_strand == "-":
-            out = "-"
-        elif subject_strand == "*":
+        elif subject_strand == "-" or subject_strand == "*":
             out = "-"
     elif query_strand == "*":
         if subject_strand == "*":
             out = "+"
-        elif subject_strand == "-":
-            out = "-"
-        elif subject_strand == "*":
+        elif subject_strand == "-" or subject_strand == "*":
             out = "-"
 
     if out is None:
@@ -190,7 +186,14 @@ def group_by_indices(groups: list) -> dict:
     return {k: [x[0] for x in v] for k, v in groupby(sorted(enumerate(groups), key=lambda x: x[1]), lambda x: x[1])}
 
 
-def compute_up_down(starts: np.ndarray, ends: np.ndarray, strands: np.ndarray, upstream: int | float | np.ndarray, downstream: int | float | np.ndarray, site: str = "TSS") -> tuple[np.ndarray, np.ndarray]:
+def compute_up_down(
+    starts: np.ndarray,
+    ends: np.ndarray,
+    strands: np.ndarray,
+    upstream: float | np.ndarray,
+    downstream: float | np.ndarray,
+    site: str = "TSS",
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute promoter or terminator regions for genomic ranges.
 
     Args:

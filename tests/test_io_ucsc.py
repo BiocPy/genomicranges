@@ -24,13 +24,13 @@ def test_read_ucsc(mock_parse_gtf):
     mock_parse_gtf.return_value = mock_df
 
     gr = read_ucsc("hg19", type="refGene")
-    
+
     assert isinstance(gr, GenomicRanges)
     assert len(gr) == 1
     assert gr.get_seqnames()[0] == "chr1"
-    
+
     # ensure it was called properly
     mock_parse_gtf.assert_called_once_with(
-        "http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/genes//hg19.refGene.gtf.gz", 
+        "http://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/genes//hg19.refGene.gtf.gz",
         compressed=True
     )

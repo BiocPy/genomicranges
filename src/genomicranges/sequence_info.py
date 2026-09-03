@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-
 from warnings import warn
 
 import biocutils as ut
