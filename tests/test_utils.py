@@ -7,7 +7,7 @@ from iranges import IRanges
 def test_sanitize_strand_vector():
     with pytest.raises(ValueError):
         sanitize_strand_vector(None)
-    
+
     with pytest.raises(ValueError):
         sanitize_strand_vector(np.array([[1, 2], [3, 4]]))
 
@@ -44,7 +44,7 @@ def test_sanitize_strand_search_ops():
 
 def test_extract_groups_from_granges():
     gr = GenomicRanges(seqnames=["chr1", "chr2", "chr1"], ranges=IRanges([1, 2, 3], [4, 5, 6]), strand=["+", "-", "+"])
-    
+
     # ignore_strand=True
     groups = extract_groups_from_granges(gr, ignore_strand=True)
     assert len(groups) == 2
@@ -54,4 +54,3 @@ def test_extract_groups_from_granges():
     # ignore_strand=False
     groups2 = extract_groups_from_granges(gr, ignore_strand=False)
     assert len(groups2) == 2
-    

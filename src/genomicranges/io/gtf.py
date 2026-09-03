@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import pandas as pd
+
     from ..GenomicRanges import GenomicRanges
 # Variation of https://github.com/epiviz/epivizfileserver/src/epivizfileserver/cli.py
 

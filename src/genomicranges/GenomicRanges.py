@@ -6,7 +6,6 @@ from multiprocessing import Pool, cpu_count
 from typing import TYPE_CHECKING, Any, Literal
 from warnings import warn
 
-
 if TYPE_CHECKING:
     from .grangeslist import CompressedGenomicRangesList
 
@@ -561,9 +560,7 @@ class GenomicRanges(ut.BiocObject):
     ######>> strand <<######
     ########################
 
-    def get_strand(
-        self, as_type: Literal["numpy", "factor", "list"] = "numpy"
-    ) -> tuple[np.ndarray, dict] | list[str]:
+    def get_strand(self, as_type: Literal["numpy", "factor", "list"] = "numpy") -> tuple[np.ndarray, dict] | list[str]:
         """Access strand information.
 
         Args:
@@ -2743,13 +2740,15 @@ class GenomicRanges(ut.BiocObject):
         strands[strands == 0] = 8
 
         for i in range(len(self)):
-            ranges.append((
-                self._seqnames[i],
-                strands[i],
-                self._ranges._start[i],
-                self._ranges.end[i],
-                i,
-            ))
+            ranges.append(
+                (
+                    self._seqnames[i],
+                    strands[i],
+                    self._ranges._start[i],
+                    self._ranges.end[i],
+                    i,
+                )
+            )
 
         return ranges
 
