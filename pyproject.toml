@@ -56,14 +56,14 @@ Source = "https://github.com/BiocPy/genomicranges"
 
 [project.optional-dependencies]
 optional = [
-    "biobear",
+    "biobear; python_version < '3.14'",
     "joblib",
     "matplotlib",
     "pandas",
     "polars",
 ]
 testing = [
-    "biobear",
+    "biobear; python_version < '3.14'",
     "joblib",
     "matplotlib",
     "pandas",
