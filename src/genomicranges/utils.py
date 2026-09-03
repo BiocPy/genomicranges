@@ -1,5 +1,11 @@
+from __future__ import annotations
+
+from collections.abc import Sequence
 from itertools import groupby
-from typing import List, Sequence, Union
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .GenomicRanges import GenomicRanges
 
 import biocutils as ut
 import numpy as np
@@ -12,7 +18,7 @@ STRAND_MAP = {"+": 1, "-": -1, "*": 0}
 REV_STRAND_MAP = {"1": "+", "-1": "-", "0": "*"}
 
 
-def sanitize_strand_vector(strand: Union[Sequence[str], Sequence[int], np.ndarray]) -> np.ndarray:
+def sanitize_strand_vector(strand: Sequence[str] | Sequence[int] | np.ndarray) -> np.ndarray:
     """Create a numpy representation for ``strand``.
 
     Mapping: 1 for "+" (forward strand), 0 for "*" (any strand) and -1 for "-" (reverse strand).
@@ -55,7 +61,16 @@ def sanitize_strand_vector(strand: Union[Sequence[str], Sequence[int], np.ndarra
         raise TypeError("'strand' must be either a numpy vector, a list of integers or strings representing strand.")
 
 
-def _sanitize_vec(x: Sequence):
+def _sanitize_vec(x: Sequence | np.ndarray) -> list:
+    """Sanitize a vector into a standard Python list.
+
+    Args:
+        x:
+            Vector to sanitize.
+
+    Returns:
+        Sanitized list.
+    """
     if isinstance(x, np.ma.MaskedArray):
         x.filled(fill_value=None)
         return x.tolist()
@@ -63,7 +78,19 @@ def _sanitize_vec(x: Sequence):
     return list(x)
 
 
-def _sanitize_strand_search_ops(query_strand, subject_strand):
+def _sanitize_strand_search_ops(query_strand: str, subject_strand: str) -> int | None:
+    """Sanitize strand search operations.
+
+    Args:
+        query_strand:
+            Query strand.
+
+        subject_strand:
+            Subject strand.
+
+    Returns:
+        Sanitized strand value or None if invalid.
+    """
     query_strand = REV_STRAND_MAP[query_strand]
     subject_strand = REV_STRAND_MAP[subject_strand]
 
@@ -79,16 +106,12 @@ def _sanitize_strand_search_ops(query_strand, subject_strand):
     elif query_strand == "-":
         if subject_strand == "+":
             out = None
-        elif subject_strand == "-":
-            out = "-"
-        elif subject_strand == "*":
+        elif subject_strand == "-" or subject_strand == "*":
             out = "-"
     elif query_strand == "*":
         if subject_strand == "*":
             out = "+"
-        elif subject_strand == "-":
-            out = "-"
-        elif subject_strand == "*":
+        elif subject_strand == "-" or subject_strand == "*":
             out = "-"
 
     if out is None:
@@ -97,7 +120,7 @@ def _sanitize_strand_search_ops(query_strand, subject_strand):
     return STRAND_MAP[out]
 
 
-def split_intervals(start: int, end: int, step: int) -> List:
+def split_intervals(start: int, end: int, step: int) -> list[tuple[int, int]]:
     """Split an interval range into equal bins.
 
     Args:
@@ -120,7 +143,7 @@ def split_intervals(start: int, end: int, step: int) -> List:
     return bins
 
 
-def slide_intervals(start: int, end: int, width: int, step: int) -> List:
+def slide_intervals(start: int, end: int, width: int, step: int) -> list[tuple[int, int]]:
     """Sliding intervals.
 
     Args:
@@ -151,10 +174,26 @@ def slide_intervals(start: int, end: int, width: int, step: int) -> List:
 
 
 def group_by_indices(groups: list) -> dict:
+    """Group items by their indices.
+
+    Args:
+        groups:
+            List of groups.
+
+    Returns:
+        A dictionary mapping group names to their indices.
+    """
     return {k: [x[0] for x in v] for k, v in groupby(sorted(enumerate(groups), key=lambda x: x[1]), lambda x: x[1])}
 
 
-def compute_up_down(starts, ends, strands, upstream, downstream, site: str = "TSS"):
+def compute_up_down(
+    starts: np.ndarray,
+    ends: np.ndarray,
+    strands: np.ndarray,
+    upstream: float | np.ndarray,
+    downstream: float | np.ndarray,
+    site: str = "TSS",
+) -> tuple[np.ndarray, np.ndarray]:
     """Compute promoter or terminator regions for genomic ranges.
 
     Args:
@@ -205,7 +244,19 @@ def compute_up_down(starts, ends, strands, upstream, downstream, site: str = "TS
     return new_starts, new_ends - new_starts + 1
 
 
-def extract_groups_from_granges(x, ignore_strand=False):
+def extract_groups_from_granges(x: GenomicRanges, ignore_strand: bool = False) -> list[tuple[Any, np.ndarray]]:
+    """Extract groups from a GenomicRanges object based on seqnames and strand.
+
+    Args:
+        x:
+            GenomicRanges object.
+
+        ignore_strand:
+            Whether to ignore strand information. Defaults to False.
+
+    Returns:
+        List of tuples containing the group name and matched indices.
+    """
     if ignore_strand:
         groups = []
         for idx, seq in enumerate(x._seqinfo._seqnames):
@@ -228,7 +279,7 @@ def extract_groups_from_granges(x, ignore_strand=False):
         return groups
 
 
-def wrapper_follow_precede(args):
+def wrapper_follow_precede(args: tuple) -> tuple[np.ndarray, np.ndarray]:
     """Processes a single group for precede/follow operations.
     This function is designed to be called by a multiprocessing pool.
     """

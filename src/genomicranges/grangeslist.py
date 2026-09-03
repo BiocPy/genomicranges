@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Sequence, Union
+from collections.abc import Sequence
+from typing import Any
 
 import biocutils as ut
 import numpy as np
@@ -120,10 +121,10 @@ class CompressedGenomicRangesList(CompressedList):
         self,
         unlist_data: GenomicRanges,
         partitioning: Partitioning,
-        element_metadata: Optional[dict] = None,
-        metadata: Optional[Union[Dict[str, Any], ut.NamedList]] = None,
-        **kwargs,
-    ):
+        element_metadata: dict[str, Any] | None = None,
+        metadata: dict[str, Any] | ut.NamedList | None = None,
+        **kwargs: Any,
+    ) -> None:
         """Initialize a CompressedIRangesList.
 
         Args:
@@ -152,9 +153,9 @@ class CompressedGenomicRangesList(CompressedList):
     @classmethod
     def from_list(
         cls,
-        lst: List[GenomicRanges],
-        names: Optional[Union[ut.Names, Sequence[str]]] = None,
-        metadata: Optional[Union[Dict[str, Any], ut.NamedList]] = None,
+        lst: list[GenomicRanges],
+        names: ut.Names | Sequence[str] | None = None,
+        metadata: dict[str, Any] | ut.NamedList | None = None,
     ) -> CompressedGenomicRangesList:
         """Create a `CompressedIRangesList` from a regular list.
 
@@ -241,8 +242,8 @@ class CompressedGenomicRangesList(CompressedList):
 
         output += f"partitioning: {ut.print_truncated_list(self._partitioning)}\n"
 
-        output += f"element_metadata({str(len(self._element_metadata))} rows): {ut.print_truncated_list(list(self._element_metadata.get_column_names()), sep=' ', include_brackets=False, transform=lambda y: y)}\n"
-        output += f"metadata({str(len(self._metadata))}): {ut.print_truncated_list(list(self._metadata.keys()), sep=' ', include_brackets=False, transform=lambda y: y)}\n"
+        output += f"element_metadata({len(self._element_metadata)!s} rows): {ut.print_truncated_list(list(self._element_metadata.get_column_names()), sep=' ', include_brackets=False, transform=lambda y: y)}\n"
+        output += f"metadata({len(self._metadata)!s}): {ut.print_truncated_list(list(self._metadata.keys()), sep=' ', include_brackets=False, transform=lambda y: y)}\n"
 
         return output
 
@@ -336,7 +337,7 @@ class CompressedGenomicRangesList(CompressedList):
         return output
 
     @classmethod
-    def empty(cls, n: int):
+    def empty(cls, n: int) -> CompressedGenomicRangesList:
         """Create an zero-length `CompressedGenomicRangesList` object.
 
         Args:
@@ -356,9 +357,9 @@ class CompressedGenomicRangesList(CompressedList):
 @splitAsCompressedList.register
 def _(
     data: GenomicRanges,
-    groups_or_partitions: Union[list, Partitioning],
-    names: Optional[Union[ut.Names, Sequence[str]]] = None,
-    metadata: Optional[dict] = None,
+    groups_or_partitions: list[Any] | Partitioning,
+    names: ut.Names | Sequence[str] | None = None,
+    metadata: dict[str, Any] | None = None,
 ) -> CompressedGenomicRangesList:
     """Handle lists of IRanges objects."""
 

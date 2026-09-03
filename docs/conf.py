@@ -72,7 +72,6 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "sphinx_autodoc_typehints",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -80,8 +79,7 @@ templates_path = ["_templates"]
 
 
 # Enable markdown
-# extensions.append("myst_parser")
-extensions.append("myst_nb")
+extensions.append("myst_parser")
 
 # Configure MyST-Parser
 myst_enable_extensions = [
@@ -107,8 +105,8 @@ source_suffix = [".rst", ".md"]
 master_doc = "index"
 
 # General information about the project.
-project = "GenomicRanges"
-copyright = "2023, jkanche"
+project = "genomicranges"
+copyright = "2023, Jayaram Kancherla"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -119,9 +117,10 @@ copyright = "2023, jkanche"
 # If you don’t need the separation provided between version and release,
 # just set them both to the same value.
 try:
-    from genomicranges import __version__ as version
-except ImportError:
-    version = ""
+    from importlib.metadata import version as get_version
+    version = get_version("genomicranges")
+except Exception:
+    version = "unknown"
 
 if not version or version.lower() == "unknown":
     version = os.getenv("READTHEDOCS_VERSION", "unknown")  # automatically set by RTD
@@ -168,29 +167,28 @@ pygments_style = "sphinx"
 # If this is True, todo emits a warning for each TODO entries. The default is False.
 todo_emit_warnings = True
 
-autodoc_default_options = {
-    # 'members': 'var1, var2',
-    # 'member-order': 'bysource',
-    "special-members": True,
-    "undoc-members": True,
-    "exclude-members": "__weakref__, __dict__, __str__, __module__",
-}
-
-autosummary_generate = True
-autosummary_imported_members = True
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "furo"
+html_theme = "alabaster"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
 html_theme_options = {
-    "sidebar_width": "300px",
-    "page_width": "1200px"
+    "light_css_variables": {
+        "color-brand-primary": "#0052cc",
+        "color-brand-content": "#0052cc",
+    },
+    "dark_css_variables": {
+        "color-brand-primary": "#4c9aff",
+        "color-brand-content": "#4c9aff",
+    },
+    "source_repository": "https://github.com/biocpy/genomicranges",
+    "source_branch": "main",
+    "source_directory": "docs/",
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -259,7 +257,7 @@ html_static_path = ["_static"]
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "GenomicRanges-doc"
+htmlhelp_basename = "genomicranges-doc"
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -276,7 +274,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "GenomicRanges Documentation", "jkanche", "manual")
+    ("index", "user_guide.tex", "genomicranges Documentation", "Jayaram Kancherla", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -310,12 +308,31 @@ intersphinx_mapping = {
     "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference", None),
     "setuptools": ("https://setuptools.pypa.io/en/stable/", None),
-    "pyscaffold": ("https://pyscaffold.org/en/stable", None),
-    "biocframe": ("https://biocpy.github.io/BiocFrame", None),
-    "biocutils": ("https://biocpy.github.io/BiocUtils", None),
-    "iranges": ("https://biocpy.github.io/IRanges", None),
+    "biocframe": ("https://biocpy.github.io/biocframe", None),
+    "biocutils": ("https://biocpy.github.io/biocutils", None),
+    "iranges": ("https://biocpy.github.io/iranges", None),
     "polars": ("https://docs.pola.rs/api/python/stable/", None),
     "compressed-lists": ("https://biocpy.github.io/compressed-lists", None),
 }
 
 print(f"loading configurations for {project} {version} ...", file=sys.stderr)
+
+# -- Biocsetup configuration -------------------------------------------------
+
+# Enable execution of code chunks in markdown
+extensions.remove('myst_parser')
+extensions.append('myst_nb')
+
+# Less verbose api documentation
+extensions.append('sphinx_autodoc_typehints')
+
+autodoc_default_options = {
+    "special-members": True,
+    "undoc-members": True,
+    "exclude-members": "__weakref__, __dict__, __str__, __module__",
+}
+
+autosummary_generate = True
+autosummary_imported_members = True
+
+html_theme = "furo"

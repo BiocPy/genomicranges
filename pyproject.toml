@@ -1,24 +1,127 @@
-[build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5", "wheel"]
-build-backend = "setuptools.build_meta"
+[project]
+name = "genomicranges"
+dynamic = [
+    "version",
+]
+description = "Container class to represent and operate over genomic regions and annotations."
+readme = "README.md"
+authors = [
+    { name = "Jayaram Kancherla", email = "jayaram.kancherla@gmail.com" },
+]
+requires-python = ">=3.9"
+keywords = [
+    "bioinformatics",
+    "genomics",
+    "bioconductor",
+    "biocpy",
+    "genomicranges",
+    "ranges",
+    "intervals",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Typing :: Typed",
+]
+dependencies = [
+    "biocframe>=0.8.0",
+    "biocutils>=0.4.0",
+    "compressed-lists>=0.4.3",
+    "iranges>=0.7.2",
+    "numpy",
+]
 
-[tool.setuptools_scm]
-# See configuration details in https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+
+[project.license]
+file = "LICENSE.txt"
+
+
+[project.urls]
+Homepage = "https://github.com/BiocPy/genomicranges"
+Documentation = "https://biocpy.github.io/genomicranges/"
+Source = "https://github.com/BiocPy/genomicranges"
+"Bug Tracker" = "https://github.com/BiocPy/genomicranges/issues"
+
+[project.optional-dependencies]
+optional = [
+    "biobear; python_version < '3.14'",
+    "joblib",
+    "matplotlib",
+    "pandas",
+    "polars",
+]
+testing = [
+    "biobear; python_version < '3.14'",
+    "joblib",
+    "matplotlib",
+    "pandas",
+    "polars",
+    "pytest",
+    "pytest-cov",
+    "rich",
+    "seaborn",
+]
+
+[build-system]
+requires = [
+    "hatchling",
+    "hatch-vcs",
+]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+fallback-version = "0.1.0"
 
 [tool.ruff]
 line-length = 120
-src = ["src"]
-# exclude = ["tests"]
-lint.extend-ignore = ["F821"]
+src = [
+    "src",
+]
+exclude = [
+    "tests",
+    "docs",
+]
+
+[tool.ruff.lint]
+extend-ignore = [
+    "F821",
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = [
+    "E402",
+    "F401",
+]
 
 [tool.ruff.format]
 docstring-code-format = true
 docstring-code-line-length = 20
 
-[tool.ruff.lint.per-file-ignores]
-"__init__.py" = ["E402", "F401"]
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = "--cov --cov-report term-missing"
+testpaths = [
+    "tests",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B110"]

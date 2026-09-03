@@ -1,4 +1,9 @@
-from typing import Literal
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from ..GenomicRanges import GenomicRanges
 
 from .gtf import parse_gtf
 
@@ -41,7 +46,7 @@ def access_gtf_ucsc(
 def read_ucsc(
     genome: str,
     type: Literal["refGene", "ensGene", "knownGene", "ncbiRefSeq"] = "refGene",
-) -> "GenomicRanges":
+) -> GenomicRanges:
     """Load a genome annotation from UCSC as :py:class:`~genomicranges.GenomicRanges.GenomicRanges`.
 
     Args:

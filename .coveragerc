@@ -1,8 +1,8 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
-source = genomicranges
-# omit = bad_file.py
+source = src
+omit = tests/*
 
 [paths]
 source =
